@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="{% static "css/jquery-ui.css"%}">
+    <script type="text/javascript" src="{% static "js/jquery-1.9.1.js"%}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-ui.js"%}"></script>
+    <script type="text/javascript" src="{% static "js/customscript.js" %}"></script>
+    <link rel="stylesheet" href="{% static "css/customstyle.css" %}">
+
+{#    SCRIPTS FOR ROTATABLE DIV#}
+    <script type="text/javascript" src="{% static "js/main.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/rotatable.js" %}"></script>
+    <link rel="stylesheet" href="{% static "css/main.css" %}">
+
+</head>
+<body>
+
+    <div id="draggable-zone">
+      <div id="draggable-wrapper" style="width: 150px; height: 150px; left: 225px; top: 175px;">
+        <div id="resizable-wrapper">
+          <img src="{% static "img/earth.png" %}" width="150" height="150" id="elem-wrapper">
+        </div>
+      </div>
+    </div>
+    <button class="elcenter" id="submitposition" >Submit Position</button>
+    <p class="elcenter" id="result" style="width:200px;">Result: </p>
+
+
+    <script type="text/javascript">
+{#        Fetching Values from DOM#}
+        $(document).ready(function() {
+            $("#submitposition").click(function(){
+                var draggablewrap = $("#draggable-wrapper");
+                var elemwrap = $("#elem-wrapper");
+                var uiwrap = $("#ui-wrapper");
+
+                var pos_left = draggablewrap.css('left').replace(/\D/g,'');
+                var pos_top = draggablewrap.css('top').replace(/\D/g,'');
+
+                var size_height = elemwrap.css('height').replace(/\D/g,'');
+                var size_width = elemwrap.css('width').replace(/\D/g,'');
+
+                var rot_matrix = uiwrap.css('transform');
+
+
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: "/main/ajax_process/",
+                    data: {pos_left:pos_left,
+                            pos_top: pos_top,
+                            size_height: size_height,
+                            size_width: size_width,
+                            rot_matrix: rot_matrix,
+                            csrfmiddlewaretoken: '{{ csrf_token }}'},
+                    success: function(json) {
+                        $("#result").append('Server Response: ' + json.server_response)
+                    },
+                    error: function(xhr, errmsg, err) {
+                        alert(xhr.status + ": " + xhr.responseText);
+                    }
+                });
+                return false;
+            });
+        });
+
+
+    </script>
+</body>
+</html>
